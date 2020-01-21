@@ -7,9 +7,11 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
+import android.media.Image
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
+import android.widget.Button
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.GridLayoutManager
@@ -36,27 +38,51 @@ class MainActivity : AppCompatActivity() {
         checkPermissions(upload_image_id)
     }
 
-    private fun checkPermissions(btn: ImageView) {
-        btn.setOnClickListener {
+    private fun checkCameraPermission(takeImageBtn : ImageView) {
+        takeImageBtn.setOnClickListener {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED
-                    || checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED
-                ) {
-
+                if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED) {
                     val permissions = arrayOf(
-                        Manifest.permission.CAMERA,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                        Manifest.permission.CAMERA
                     )
-                    requestPermissions(permissions, PERMISION_CODE)
+                    requestPermissions(permissions, REQUEST_CAMERA_CODE)
 
                 } else {
                     openCamera()
-                    pickFromGallery()
+
                 }
             } else {
                 openCamera()
+            }
+        }
+    }
+
+    private fun checkGalleryPermission(uploadImageBtn : ImageView) {
+        uploadImageBtn.setOnClickListener {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+
+                    val permissions = arrayOf(
+                        Manifest.permission.READ_EXTERNAL_STORAGE
+                    )
+                    requestPermissions(permissions, REQUEST_GALLERY_CODE)
+
+                } else {
+                    pickFromGallery()
+
+                }
+            } else {
                 pickFromGallery()
             }
+        }
+    }
+
+    private fun checkPermissions(btn: ImageView) {
+
+        if (btn == take_image_id) {
+          checkCameraPermission(btn)
+        } else {
+            checkGalleryPermission(btn)
         }
     }
 
@@ -66,11 +92,17 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == PERMISION_CODE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == REQUEST_CAMERA_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 openCamera()
-                pickFromGallery()
+            } else {
+                Toast.makeText(this, "Permissions denied!", Toast.LENGTH_SHORT).show()
+            }
+        }
 
+        if (requestCode == REQUEST_GALLERY_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                pickFromGallery()
             } else {
                 Toast.makeText(this, "Permissions denied!", Toast.LENGTH_SHORT).show()
             }
@@ -91,7 +123,7 @@ class MainActivity : AppCompatActivity() {
         gallery.setAction(Intent.ACTION_GET_CONTENT)
         startActivityForResult(
             Intent.createChooser(gallery, "Choose image"),
-            GALLERY_REQUEST_CODE
+            GALLERY_CODE
         )
     }
 
@@ -107,7 +139,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        if (requestCode == GALLERY_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+        if (requestCode == GALLERY_CODE && resultCode == Activity.RESULT_OK) {
             val imageUris = data?.data
             try {
                 val photoGallery =
@@ -122,8 +154,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        val PERMISION_CODE = 200
+        val REQUEST_CAMERA_CODE = 200
+        val REQUEST_GALLERY_CODE = 210
         val REQUEST_CODE = 100
-        val GALLERY_REQUEST_CODE = 300
+        val GALLERY_CODE = 300
     }
 }
