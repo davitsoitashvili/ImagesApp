@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_main.*
 import android.widget.ImageView
 import java.io.IOException
+import java.lang.RuntimeException
 
 class MainActivity : AppCompatActivity() {
 
@@ -47,6 +48,7 @@ class MainActivity : AppCompatActivity() {
                         Manifest.permission.WRITE_EXTERNAL_STORAGE
                     )
                     requestPermissions(permissions, PERMISION_CODE)
+
                 } else {
                     openCamera()
                     pickFromGallery()
@@ -96,10 +98,13 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_CODE) {
-
-            val photo = data?.getExtras()?.get("data") as Bitmap
-            imageArray.add(photo)
-            adapter.notifyDataSetChanged()
+            try {
+                val photo = data?.getExtras()?.get("data") as Bitmap
+                imageArray.add(photo)
+                adapter.notifyDataSetChanged()
+            } catch (e : Exception) {
+                e.printStackTrace()
+            }
         }
 
         if (requestCode == GALLERY_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
@@ -110,7 +115,7 @@ class MainActivity : AppCompatActivity() {
                 imageArray.add(photoGallery)
                 adapter.notifyDataSetChanged()
 
-            } catch (e: IOException) {
+            } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
