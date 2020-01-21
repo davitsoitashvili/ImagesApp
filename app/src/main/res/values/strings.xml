@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">DesignApp</string>
+    <string name="title">დოკუმენტის გასაგზავნად აირჩიე ან\n        გადაუღე სურათი დოკუმენტს</string>
+    <string name="upload_image">  სურათის\n ატვირთვა</string>
+    <string name="take_image">  სურათის\n გადაღება</string>
+</resources>
