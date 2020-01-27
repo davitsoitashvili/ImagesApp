@@ -18,10 +18,17 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_main.*
 import android.widget.ImageView
+import androidx.core.graphics.drawable.toBitmap
+import androidx.fragment.app.FragmentManager
+import kotlinx.android.synthetic.main.fragment_image.*
+import kotlinx.android.synthetic.main.items.*
 import java.io.IOException
 import java.lang.RuntimeException
 
+@Suppress("DEPRECATION")
 class MainActivity : AppCompatActivity() {
+
+    var testImage : Bitmap? = null
 
     val imageArray = mutableListOf<Bitmap>()
     var adapter: RecyclerAdapter = RecyclerAdapter(imageArray)
@@ -36,9 +43,10 @@ class MainActivity : AppCompatActivity() {
 
         checkPermissions(take_image_id)
         checkPermissions(upload_image_id)
+
     }
 
-    private fun checkCameraPermission(takeImageBtn : ImageView) {
+    private fun checkCameraPermission(takeImageBtn: ImageView) {
         takeImageBtn.setOnClickListener {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED) {
@@ -57,7 +65,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkGalleryPermission(uploadImageBtn : ImageView) {
+    private fun checkGalleryPermission(uploadImageBtn: ImageView) {
         uploadImageBtn.setOnClickListener {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
@@ -80,7 +88,7 @@ class MainActivity : AppCompatActivity() {
     private fun checkPermissions(btn: ImageView) {
 
         if (btn == take_image_id) {
-          checkCameraPermission(btn)
+            checkCameraPermission(btn)
         } else {
             checkGalleryPermission(btn)
         }
@@ -134,7 +142,8 @@ class MainActivity : AppCompatActivity() {
                 val photo = data?.getExtras()?.get("data") as Bitmap
                 imageArray.add(photo)
                 adapter.notifyDataSetChanged()
-            } catch (e : Exception) {
+
+            } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
@@ -152,6 +161,14 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+//    private fun fragmentInstance() {
+//        val fragmentManager = supportFragmentManager
+//        val transaction = fragmentManager.beginTransaction()
+//        transaction.replace(R.id.ImageFragmentContainer, ImageFragment.isInstance(imageArray[0]))
+//        transaction.commit()
+//    }
+
 
     companion object {
         val REQUEST_CAMERA_CODE = 200

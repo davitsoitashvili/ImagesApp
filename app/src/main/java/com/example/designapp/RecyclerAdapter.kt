@@ -22,7 +22,7 @@ class RecyclerAdapter(
     }
 
     open class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)  {
-        val image = itemView.image_id
+        val image = itemView.itemImage
 
     }
 
@@ -37,7 +37,7 @@ class RecyclerAdapter(
 
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        holder.itemView.image_id.setImageBitmap(images.get(position))
+        holder.itemView.itemImage.setImageBitmap(images.get(position))
     }
 
 
