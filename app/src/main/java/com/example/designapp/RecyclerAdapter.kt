@@ -1,6 +1,9 @@
 package com.example.designapp
 
+import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.media.Image
 import android.view.LayoutInflater
@@ -17,14 +20,16 @@ import kotlinx.android.synthetic.main.items.view.*
 
 class RecyclerAdapter(
     images: List<Bitmap>,
-    listener : ItemPositionCallBack
+    listener: ItemPositionCallBack
 ) : RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
     private var images: List<Bitmap> = ArrayList<Bitmap>()
-    private var listener : ItemPositionCallBack
+    private var listener: ItemPositionCallBack
+
 
     init {
         this.images = images
         this.listener = listener
+
 
     }
 
@@ -45,18 +50,33 @@ class RecyclerAdapter(
 
     }
 
-    open class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imageView: ImageView = itemView.itemImage
         val img = imageView
 
         fun initialize(action: ItemPositionCallBack) {
-           img.setOnClickListener() {
-               action.itemPosition(adapterPosition)
-           }
+            img.setOnClickListener() {
+                val builder: AlertDialog.Builder = AlertDialog.Builder(context)
+                builder.setMessage("Are you sure to open the image?")
+                    .setPositiveButton("Yes", object : DialogInterface.OnClickListener{
+                        override fun onClick(dialog: DialogInterface?, which: Int) {
+                            action.itemPosition(adapterPosition)
+                        }
 
+                    })
+                    .setNegativeButton("Cancel",null)
+
+                val alert : AlertDialog = builder.create()
+                alert.show()
+
+            }
         }
     }
 
+    companion object {
+        @SuppressLint("StaticFieldLeak")
+        var context : Context? = null
+    }
 
 }
 

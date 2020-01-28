@@ -42,6 +42,8 @@ class MainActivity : AppCompatActivity(),ItemPositionCallBack{
         checkPermissions(take_image_id)
         checkPermissions(upload_image_id)
 
+        RecyclerAdapter.context = this
+
     }
 
     override fun itemPosition(position: Int) {
@@ -137,6 +139,7 @@ class MainActivity : AppCompatActivity(),ItemPositionCallBack{
             GALLERY_CODE
         )
     }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
