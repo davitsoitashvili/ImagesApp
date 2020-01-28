@@ -17,10 +17,10 @@ import kotlinx.android.synthetic.main.items.view.*
 
 class RecyclerAdapter(
     images: List<Bitmap>,
-    listener : OnItemClickListener
+    listener : ItemPositionCallBack
 ) : RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
     private var images: List<Bitmap> = ArrayList<Bitmap>()
-    private var listener : OnItemClickListener? = null
+    private var listener : ItemPositionCallBack
 
     init {
         this.images = images
@@ -47,20 +47,17 @@ class RecyclerAdapter(
 
     open class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imageView: ImageView = itemView.itemImage
+        val img = imageView
 
-        fun initialize(action: OnItemClickListener?) {
-            val img = imageView
-            img.setOnClickListener() {
-                action?.OnItemClick(adapterPosition)
-            }
+        fun initialize(action: ItemPositionCallBack) {
+           img.setOnClickListener() {
+               action.itemPosition(adapterPosition)
+           }
 
         }
-
     }
 
-    interface OnItemClickListener {
-        fun OnItemClick(position: Int)
-    }
+
 }
 
 

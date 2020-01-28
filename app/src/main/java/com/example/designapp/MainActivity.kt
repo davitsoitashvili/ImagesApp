@@ -26,7 +26,7 @@ import java.io.IOException
 import java.lang.RuntimeException
 
 @Suppress("DEPRECATION")
-class MainActivity : AppCompatActivity(),RecyclerAdapter.OnItemClickListener{
+class MainActivity : AppCompatActivity(),ItemPositionCallBack{
 
     val imageArray = mutableListOf<Bitmap>()
     var adapter: RecyclerAdapter = RecyclerAdapter(imageArray,this)
@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity(),RecyclerAdapter.OnItemClickListener{
 
     }
 
-    override fun OnItemClick(position: Int) {
+    override fun itemPosition(position: Int) {
         fragmentInstance(position)
     }
 
