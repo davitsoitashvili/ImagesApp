@@ -28,6 +28,7 @@ class ImageFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         image = this.arguments?.getParcelable("image")
         setImg(image)
+        this.arguments?.clear()
         super.onActivityCreated(savedInstanceState)
     }
 
