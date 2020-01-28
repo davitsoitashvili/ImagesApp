@@ -7,26 +7,11 @@
     tools:context=".MainActivity">
 
 
-    <TextView
-        android:id="@+id/title_id"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/margin_top_40"
-        android:text="@string/title"
-        android:textAlignment="center"
-        android:textSize="@dimen/text_size_17"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <androidx.recyclerview.widget.RecyclerView
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/height_300"
-        app:layout_constraintTop_toBottomOf="@+id/title_id"
-        app:layout_constraintVertical_bias="0.2">
+        android:layout_height="@dimen/height_300">
 
     </androidx.recyclerview.widget.RecyclerView>
 
@@ -55,13 +40,18 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
 
-        <ScrollView
-            app:layout_constraintTop_toBottomOf="@id/recycler_view"
+        <LinearLayout
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:id="@+id/ImageFragmentContainer"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="match_parent"
+            android:id="@+id/ImageFragmentContainer">
+
+
+        </LinearLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

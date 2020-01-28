@@ -169,6 +169,7 @@ class MainActivity : AppCompatActivity(),ItemPositionCallBack{
         try {
             val fragmentManager = supportFragmentManager
             val transaction = fragmentManager.beginTransaction()
+            transaction.addToBackStack("back")
             transaction.replace(
                 R.id.ImageFragmentContainer,
                 ImageFragment.isInstance(imageArray[position])
