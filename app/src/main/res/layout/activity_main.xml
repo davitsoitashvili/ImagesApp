@@ -25,19 +25,11 @@
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="300dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/title_id"
         app:layout_constraintVertical_bias="0.2">
 
     </androidx.recyclerview.widget.RecyclerView>
 
-
-
-<!--    <FrameLayout-->
-<!--        android:id="@+id/ImageFragmentContainer"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"/>-->
 
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -61,5 +53,15 @@
         android:src="@drawable/upload_image"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+
+        <ScrollView
+            app:layout_constraintTop_toBottomOf="@id/recycler_view"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:id="@+id/ImageFragmentContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

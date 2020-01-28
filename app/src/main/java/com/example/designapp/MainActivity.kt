@@ -26,12 +26,10 @@ import java.io.IOException
 import java.lang.RuntimeException
 
 @Suppress("DEPRECATION")
-class MainActivity : AppCompatActivity() {
-
-    var testImage : Bitmap? = null
+class MainActivity : AppCompatActivity(),RecyclerAdapter.OnItemClickListener{
 
     val imageArray = mutableListOf<Bitmap>()
-    var adapter: RecyclerAdapter = RecyclerAdapter(imageArray)
+    var adapter: RecyclerAdapter = RecyclerAdapter(imageArray,this)
 
     @RequiresApi(VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,6 +42,10 @@ class MainActivity : AppCompatActivity() {
         checkPermissions(take_image_id)
         checkPermissions(upload_image_id)
 
+    }
+
+    override fun OnItemClick(position: Int) {
+        fragmentInstance(position)
     }
 
     private fun checkCameraPermission(takeImageBtn: ImageView) {
@@ -155,20 +157,27 @@ class MainActivity : AppCompatActivity() {
                     MediaStore.Images.Media.getBitmap(contentResolver, imageUris) as Bitmap
                 imageArray.add(photoGallery)
                 adapter.notifyDataSetChanged()
-
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
-//    private fun fragmentInstance() {
-//        val fragmentManager = supportFragmentManager
-//        val transaction = fragmentManager.beginTransaction()
-//        transaction.replace(R.id.ImageFragmentContainer, ImageFragment.isInstance(imageArray[0]))
-//        transaction.commit()
-//    }
 
+    fun fragmentInstance(position:Int) {
+        try {
+            val fragmentManager = supportFragmentManager
+            val transaction = fragmentManager.beginTransaction()
+            transaction.replace(
+                R.id.ImageFragmentContainer,
+                ImageFragment.isInstance(imageArray[position])
+            )
+            transaction.commit()
+        }catch (error : RuntimeException) {
+            error.printStackTrace()
+        }
+
+    }
 
     companion object {
         val REQUEST_CAMERA_CODE = 200
