@@ -96,6 +96,7 @@ class MainActivity : AppCompatActivity(),ItemPositionCallBack{
         }
     }
 
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
