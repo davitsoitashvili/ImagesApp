@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
                 val permissions = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                requestPermissions(permissions, 2000)
+                requestPermissions(permissions, STORAGEWRITEREQUEST_CODE)
             }
         }
 
@@ -133,14 +133,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        if (requestCode == 2000) {
+        if (requestCode == STORAGEWRITEREQUEST_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
             } else {
-                Toast.makeText(this, "Permissions denied!", Toast.LENGTH_SHORT).show()
+                finish()
             }
-        } else {
-            Toast.makeText(this, "Permissions denied!", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -229,5 +227,6 @@ class MainActivity : AppCompatActivity() {
         val REQUEST_GALLERY_CODE = 210
         val REQUEST_CODE = 100
         val GALLERY_CODE = 300
+        val STORAGEWRITEREQUEST_CODE = 400
     }
 }
