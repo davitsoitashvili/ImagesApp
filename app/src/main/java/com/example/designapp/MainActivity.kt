@@ -10,6 +10,7 @@ import android.graphics.Bitmap
 import android.media.Image
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.widget.Button
 import android.widget.Toast
@@ -22,14 +23,16 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.FragmentManager
 import kotlinx.android.synthetic.main.fragment_image.*
 import kotlinx.android.synthetic.main.items.*
+import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 import java.lang.RuntimeException
 
 @Suppress("DEPRECATION")
-class MainActivity : AppCompatActivity(),ItemPositionCallBack{
+class MainActivity : AppCompatActivity() {
 
     val imageArray = mutableListOf<Bitmap>()
-    var adapter: RecyclerAdapter = RecyclerAdapter(imageArray,this)
+    var adapter: RecyclerAdapter = RecyclerAdapter(imageArray, this)
 
     @RequiresApi(VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,16 +42,25 @@ class MainActivity : AppCompatActivity(),ItemPositionCallBack{
         recyclerView.setLayoutManager(GridLayoutManager(this, 3))
         recyclerView.adapter = adapter
 
+
+        checkWriteInStoragePermission()
         checkPermissions(take_image_id)
         checkPermissions(upload_image_id)
 
-        RecyclerAdapter.context = this
+    }
+
+    val getPosition = { position: Int -> fragmentInstance(position) }
+
+    private fun checkWriteInStoragePermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+                val permissions = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                requestPermissions(permissions, 2000)
+            }
+        }
 
     }
 
-    override fun itemPosition(position: Int) {
-        fragmentInstance(position)
-    }
 
     private fun checkCameraPermission(takeImageBtn: ImageView) {
         takeImageBtn.setOnClickListener {
@@ -120,6 +132,16 @@ class MainActivity : AppCompatActivity(),ItemPositionCallBack{
                 Toast.makeText(this, "Permissions denied!", Toast.LENGTH_SHORT).show()
             }
         }
+
+        if (requestCode == 2000) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+            } else {
+                Toast.makeText(this, "Permissions denied!", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            Toast.makeText(this, "Permissions denied!", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun openCamera() {
@@ -145,9 +167,11 @@ class MainActivity : AppCompatActivity(),ItemPositionCallBack{
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_CODE) {
             try {
-                val photo = data?.getExtras()?.get("data") as Bitmap
+                val photo = data?.extras?.get("data") as Bitmap
+                saveImage(photo)
                 imageArray.add(photo)
                 adapter.notifyDataSetChanged()
+
 
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -159,16 +183,32 @@ class MainActivity : AppCompatActivity(),ItemPositionCallBack{
             try {
                 val photoGallery =
                     MediaStore.Images.Media.getBitmap(contentResolver, imageUris) as Bitmap
+                saveImage(photoGallery)
                 imageArray.add(photoGallery)
                 adapter.notifyDataSetChanged()
+
+
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
+    fun saveImage(photoImage : Bitmap) {
+        val path = Environment.getExternalStorageDirectory()
+        val dir = File("${path.absolutePath}/IMAGES/")
+        dir.mkdirs()
+        val img = File(dir, "${System.currentTimeMillis()}.jpg")
+        val outputStream = FileOutputStream(img)
+        photoImage.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+        Toast.makeText(this, "The image is saved in internal storage!", Toast.LENGTH_LONG).show()
+        outputStream.flush()
+        outputStream.close()
 
-    fun fragmentInstance(position:Int) {
+    }
+
+
+    fun fragmentInstance(position: Int) {
         try {
             val fragmentManager = supportFragmentManager
             val transaction = fragmentManager.beginTransaction()
@@ -178,11 +218,11 @@ class MainActivity : AppCompatActivity(),ItemPositionCallBack{
                 ImageFragment.isInstance(imageArray[position])
             )
             transaction.commit()
-        }catch (error : RuntimeException) {
+        } catch (error: RuntimeException) {
             error.printStackTrace()
         }
-
     }
+
 
     companion object {
         val REQUEST_CAMERA_CODE = 200
