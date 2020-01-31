@@ -15,18 +15,9 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.items.view.*
 
 class RecyclerAdapter (
-    images: List<Bitmap>,
-    positionCallback: ItemClickListener
+    var images: List<Bitmap>,
+    var positionCallback: ItemClickListener
 ) : RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
-    private var images: List<Bitmap> = ArrayList<Bitmap>()
-    private var positionCallback: ItemClickListener? = null
-
-
-    init {
-        this.images = images
-        this.positionCallback = positionCallback
-
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view: ViewHolder = ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.items, parent, false))
@@ -48,32 +39,9 @@ class RecyclerAdapter (
         val imageView: ImageView = itemView.itemImage
         fun initialize(action: ItemClickListener?) {
             imageView.setOnClickListener() {
-                val alert: AlertDialog.Builder = AlertDialog.Builder(CONTEXT)
-                    .setTitle("Choose")
-                    .setMessage("Delete or Open Image?")
-                    .setPositiveButton("Open", object : DialogInterface.OnClickListener {
-                        override fun onClick(dialog: DialogInterface?, which: Int) {
-                            action?.ItemListener(adapterPosition,false)
-                        }
-
-                    })
-                    .setNegativeButton("Delete", object : DialogInterface.OnClickListener {
-                        override fun onClick(dialog: DialogInterface?, which: Int) {
-                            action?.ItemListener(adapterPosition,true)
-                        }
-
-                    })
-
-                val alertDialog : AlertDialog = alert.create()
-                alertDialog.show()
-
+                action?.itemClicked(adapterPosition)
             }
         }
-    }
-
-    companion object {
-        @SuppressLint("StaticFieldLeak")
-        var CONTEXT: Context? = null
     }
 
 }

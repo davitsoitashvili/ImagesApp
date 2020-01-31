@@ -5,8 +5,10 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
 import android.bluetooth.BluetoothClass
 import android.content.ContentValues
+import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -39,7 +41,6 @@ import java.lang.RuntimeException
 )
 class MainActivity : AppCompatActivity(), ItemClickListener {
 
-
     val imageArray = mutableListOf<Bitmap>()
     var adapter: RecyclerAdapter = RecyclerAdapter(imageArray, this)
     val values = ContentValues()
@@ -52,26 +53,37 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
         val recyclerView: RecyclerView = recycler_view
         recyclerView.setLayoutManager(GridLayoutManager(this, 3))
         recyclerView.adapter = adapter
-        RecyclerAdapter.CONTEXT = this
 
 
-        displayImages(true)
         checkWriteInStoragePermission()
         checkPermissions(take_image_id)
         checkPermissions(upload_image_id)
 
     }
 
-    override fun ItemListener(position: Int, delete: Boolean) {
-        if (delete == true) {
-            deleteImage(position)
-            imageArray.clear()
-            adapter.notifyDataSetChanged()
-            displayImages(true)
+    override fun itemClicked(position: Int) {
+        val alert: AlertDialog.Builder = AlertDialog.Builder(this)
+            .setTitle("Choose")
+            .setMessage("Delete or Open Image?")
+            .setPositiveButton("Open", object : DialogInterface.OnClickListener {
+                override fun onClick(dialog: DialogInterface?, which: Int) {
+                    fragmentInstance(position)
+                }
 
-        } else {
-            fragmentInstance(position)
-        }
+            })
+            .setNegativeButton("Delete", object : DialogInterface.OnClickListener {
+                override fun onClick(dialog: DialogInterface?, which: Int) {
+                    deleteImage(position)
+                    imageArray.clear()
+                    adapter.notifyDataSetChanged()
+                    displayImages(true)
+
+                }
+
+            })
+
+        val alertDialog : AlertDialog = alert.create()
+        alertDialog.show()
 
     }
 
@@ -80,7 +92,11 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
             if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
                 val permissions = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 requestPermissions(permissions, STORAGEWRITEREQUEST_CODE)
+            } else {
+                displayImages(true)
             }
+        } else {
+            displayImages(true)
         }
 
     }
@@ -160,6 +176,8 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
         if (requestCode == STORAGEWRITEREQUEST_CODE) {
             if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 finish()
+            } else {
+                displayImages(true)
             }
         }
     }
@@ -258,7 +276,6 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
         }
     }
 
-
     fun fragmentInstance(position: Int) {
         try {
             val fragmentManager = supportFragmentManager
@@ -273,7 +290,6 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
             error.printStackTrace()
         }
     }
-
 
     companion object {
         val REQUEST_CAMERA_CODE = 200

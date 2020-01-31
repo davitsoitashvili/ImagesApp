@@ -46,5 +46,4 @@ class ImageFragment : Fragment() {
     private fun setImg(img : Bitmap?) {
         ImageFragmentImageView.setImageBitmap(img)
     }
-
 }
