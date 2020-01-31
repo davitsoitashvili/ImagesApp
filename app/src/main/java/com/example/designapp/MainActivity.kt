@@ -5,9 +5,15 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.Manifest
 import android.app.Activity
+import android.bluetooth.BluetoothClass
+import android.content.ContentValues
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import android.media.ExifInterface
 import android.media.Image
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
@@ -28,11 +34,16 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.lang.RuntimeException
 
-@Suppress("DEPRECATION")
-class MainActivity : AppCompatActivity() {
+@Suppress("DEPRECATION", "RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS",
+    "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS"
+)
+class MainActivity : AppCompatActivity(), ItemClickListener {
+
 
     val imageArray = mutableListOf<Bitmap>()
     var adapter: RecyclerAdapter = RecyclerAdapter(imageArray, this)
+    val values = ContentValues()
+    var imageUri : Uri? = null
 
     @RequiresApi(VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,15 +52,28 @@ class MainActivity : AppCompatActivity() {
         val recyclerView: RecyclerView = recycler_view
         recyclerView.setLayoutManager(GridLayoutManager(this, 3))
         recyclerView.adapter = adapter
+        RecyclerAdapter.CONTEXT = this
 
 
+        displayImages(true)
         checkWriteInStoragePermission()
         checkPermissions(take_image_id)
         checkPermissions(upload_image_id)
 
     }
 
-    val getPosition = { position: Int -> fragmentInstance(position) }
+    override fun ItemListener(position: Int, delete: Boolean) {
+        if (delete == true) {
+            deleteImage(position)
+            imageArray.clear()
+            adapter.notifyDataSetChanged()
+            displayImages(true)
+
+        } else {
+            fragmentInstance(position)
+        }
+
+    }
 
     private fun checkWriteInStoragePermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -134,23 +158,26 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (requestCode == STORAGEWRITEREQUEST_CODE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-            } else {
+            if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 finish()
             }
         }
     }
 
+
     private fun openCamera() {
+        values.put(MediaStore.Images.Media.TITLE, "New picture")
+        values.put(MediaStore.Images.Media.DESCRIPTION, "Picture from Camera")
+        imageUri = contentResolver.insert(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,values)
 
         val camera = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        camera.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
         startActivityForResult(camera, REQUEST_CODE)
 
     }
 
     private fun pickFromGallery() {
-
         val gallery = Intent()
         gallery.setType("image/*")
         gallery.setAction(Intent.ACTION_GET_CONTENT)
@@ -160,15 +187,13 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_CODE) {
             try {
-                val photo = data?.extras?.get("data") as Bitmap
+                val photo = MediaStore.Images.Media.getBitmap(contentResolver, imageUri)
                 saveImage(photo)
-                imageArray.add(photo)
-                adapter.notifyDataSetChanged()
+                displayImages(false)
 
 
             } catch (e: Exception) {
@@ -182,9 +207,7 @@ class MainActivity : AppCompatActivity() {
                 val photoGallery =
                     MediaStore.Images.Media.getBitmap(contentResolver, imageUris) as Bitmap
                 saveImage(photoGallery)
-                imageArray.add(photoGallery)
-                adapter.notifyDataSetChanged()
-
+                displayImages(false)
 
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -192,17 +215,47 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun saveImage(photoImage : Bitmap) {
+
+    private fun saveImage(photoImage: Bitmap) {
         val path = Environment.getExternalStorageDirectory()
         val dir = File("${path.absolutePath}/IMAGES/")
         dir.mkdirs()
         val img = File(dir, "${System.currentTimeMillis()}.jpg")
         val outputStream = FileOutputStream(img)
         photoImage.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-        Toast.makeText(this, "The image is saved in internal storage!", Toast.LENGTH_LONG).show()
         outputStream.flush()
         outputStream.close()
 
+    }
+
+    private fun displayImages(reload: Boolean) {
+        val path = Environment.getExternalStorageDirectory()
+        if (reload == true) {
+            val allItems = File("${path.absolutePath}/IMAGES/").walk().forEach {
+                if (BitmapFactory.decodeFile(it.absolutePath) != null) {
+                    imageArray.add(BitmapFactory.decodeFile(it.absolutePath))
+                    adapter.notifyDataSetChanged()
+                }
+            }
+
+        } else {
+            val lastItem = File("${path!!.absolutePath}/IMAGES/").walk().last()
+            if (BitmapFactory.decodeFile(lastItem.absolutePath) != null) {
+                imageArray.add(BitmapFactory.decodeFile(lastItem.absolutePath))
+                adapter.notifyDataSetChanged()
+            }
+        }
+
+    }
+
+    private fun deleteImage(index: Int) {
+        try {
+            val path = Environment.getExternalStorageDirectory()
+            val dir = File("${path.absolutePath}/IMAGES/").listFiles()
+            dir.get(index).delete()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
 
