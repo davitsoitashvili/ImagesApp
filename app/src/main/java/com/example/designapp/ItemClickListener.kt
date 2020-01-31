@@ -1,5 +1,7 @@
 package com.example.designapp
 
+import android.graphics.Bitmap
+
 interface ItemClickListener {
-    fun itemClicked(position: Int)
+    fun getItemPosition(position: Int)
 }

@@ -1,12 +1,6 @@
 package com.example.designapp
 
-import android.annotation.SuppressLint
-import android.app.AlertDialog
-import android.app.Dialog
-import android.content.Context
-import android.content.DialogInterface
 import android.graphics.Bitmap
-import android.media.tv.TvView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,7 +33,7 @@ class RecyclerAdapter (
         val imageView: ImageView = itemView.itemImage
         fun initialize(action: ItemClickListener?) {
             imageView.setOnClickListener() {
-                action?.itemClicked(adapterPosition)
+                action?.getItemPosition(adapterPosition)
             }
         }
     }

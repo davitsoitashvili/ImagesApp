@@ -36,7 +36,8 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.lang.RuntimeException
 
-@Suppress("DEPRECATION", "RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS",
+@Suppress(
+    "DEPRECATION", "RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS",
     "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS"
 )
 class MainActivity : AppCompatActivity(), ItemClickListener {
@@ -44,24 +45,27 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
     val imageArray = mutableListOf<Bitmap>()
     var adapter: RecyclerAdapter = RecyclerAdapter(imageArray, this)
     val values = ContentValues()
-    var imageUri : Uri? = null
+    var imageUri: Uri? = null
 
     @RequiresApi(VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val recyclerView: RecyclerView = recycler_view
-        recyclerView.setLayoutManager(GridLayoutManager(this, 3))
-        recyclerView.adapter = adapter
-
+        setRecyclerViewAdapter()
 
         checkWriteInStoragePermission()
-        checkPermissions(take_image_id)
-        checkPermissions(upload_image_id)
+        checkCameraPermission(take_image_id)
+        checkGalleryPermission(upload_image_id)
 
     }
 
-    override fun itemClicked(position: Int) {
+    private fun setRecyclerViewAdapter() {
+        val recyclerView: RecyclerView = recycler_view
+        recyclerView.setLayoutManager(GridLayoutManager(this, 3))
+        recyclerView.adapter = adapter
+    }
+
+    override fun getItemPosition(position: Int) {
         val alert: AlertDialog.Builder = AlertDialog.Builder(this)
             .setTitle("Choose")
             .setMessage("Delete or Open Image?")
@@ -82,71 +86,42 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
 
             })
 
-        val alertDialog : AlertDialog = alert.create()
+        val alertDialog: AlertDialog = alert.create()
         alertDialog.show()
 
     }
 
-    private fun checkWriteInStoragePermission() {
+    private fun checkPermission(permission: String, code: Int, function: () -> Unit) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-                val permissions = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                requestPermissions(permissions, STORAGEWRITEREQUEST_CODE)
+            if (checkSelfPermission(permission) == PackageManager.PERMISSION_DENIED) {
+                val permissions = arrayOf(permission)
+                requestPermissions(permissions, code)
             } else {
-                displayImages(true)
+                function()
             }
         } else {
-            displayImages(true)
+            function()
         }
-
     }
 
+    private fun checkWriteInStoragePermission() {
+        checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, STORAGEWRITEREQUEST_CODE){displayImages(true)}
+    }
 
     private fun checkCameraPermission(takeImageBtn: ImageView) {
         takeImageBtn.setOnClickListener {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED) {
-                    val permissions = arrayOf(
-                        Manifest.permission.CAMERA
-                    )
-                    requestPermissions(permissions, REQUEST_CAMERA_CODE)
-
-                } else {
-                    openCamera()
-
-                }
-            } else {
-                openCamera()
-            }
+            checkPermission(Manifest.permission.CAMERA, REQUEST_CAMERA_CODE, ::openCamera)
         }
     }
 
+    @RequiresApi(VERSION_CODES.JELLY_BEAN)
     private fun checkGalleryPermission(uploadImageBtn: ImageView) {
         uploadImageBtn.setOnClickListener {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-
-                    val permissions = arrayOf(
-                        Manifest.permission.READ_EXTERNAL_STORAGE
-                    )
-                    requestPermissions(permissions, REQUEST_GALLERY_CODE)
-
-                } else {
-                    pickFromGallery()
-
-                }
-            } else {
-                pickFromGallery()
-            }
-        }
-    }
-
-    private fun checkPermissions(btn: ImageView) {
-
-        if (btn == take_image_id) {
-            checkCameraPermission(btn)
-        } else {
-            checkGalleryPermission(btn)
+            checkPermission(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                REQUEST_GALLERY_CODE,
+                ::pickFromGallery
+            )
         }
     }
 
@@ -187,7 +162,8 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
         values.put(MediaStore.Images.Media.TITLE, "New picture")
         values.put(MediaStore.Images.Media.DESCRIPTION, "Picture from Camera")
         imageUri = contentResolver.insert(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,values)
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values
+        )
 
         val camera = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         camera.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
@@ -246,7 +222,7 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
 
     }
 
-    private fun displayImages(reload: Boolean) {
+    private fun displayImages(reload: Boolean? = null) {
         val path = Environment.getExternalStorageDirectory()
         if (reload == true) {
             val allItems = File("${path.absolutePath}/IMAGES/").walk().forEach {
@@ -263,8 +239,8 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
                 adapter.notifyDataSetChanged()
             }
         }
-
     }
+
 
     private fun deleteImage(index: Int) {
         try {
