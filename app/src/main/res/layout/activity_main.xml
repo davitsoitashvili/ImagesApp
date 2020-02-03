@@ -15,41 +15,49 @@
 
     </androidx.recyclerview.widget.RecyclerView>
 
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/take_image_id"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="28dp"
-        android:backgroundTint="@color/red"
-        android:layout_marginRight="@dimen/margin_right_20"
-        android:src="@drawable/take_image"
-        app:layout_constraintBottom_toTopOf="@+id/upload_image_id"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:layout_marginRight="@dimen/margin_right_20"
-        android:id="@+id/upload_image_id"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/margin_bottom_20"
-        android:backgroundTint="@color/green"
-        android:src="@drawable/upload_image"
+    <com.github.clans.fab.FloatingActionMenu
+        android:layout_marginEnd="@dimen/margin_bottom_20"
+        android:layout_marginBottom="@dimen/margin_right_20"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        app:menu_fab_size="normal">
 
 
-        <LinearLayout
-            android:orientation="vertical"
-            app:layout_constraintTop_toBottomOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/ImageFragmentContainer">
+        <com.github.clans.fab.FloatingActionButton
+            app:fab_colorPressed="@color/green"
+            app:fab_colorNormal="#fff"
+            android:src="@drawable/ic_add_a_photo_black_24dp"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:id="@+id/mainActivityTakeImage"/>
 
-        </LinearLayout>
+        <com.github.clans.fab.FloatingActionButton
+            app:fab_colorNormal="#fff"
+            app:fab_colorPressed="@color/green"
+            android:src="@drawable/ic_image_black_24dp"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:id="@+id/mainActivityUploadImage"/>
+
+
+
+    </com.github.clans.fab.FloatingActionMenu>
+
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/ImageFragmentContainer">
+
+    </LinearLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

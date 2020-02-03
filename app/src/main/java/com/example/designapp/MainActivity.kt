@@ -51,11 +51,11 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        setRecyclerViewAdapter()
 
+        setRecyclerViewAdapter()
         checkWriteInStoragePermission()
-        checkCameraPermission(take_image_id)
-        checkGalleryPermission(upload_image_id)
+        checkCameraPermission(mainActivityTakeImage)
+        checkGalleryPermission(mainActivityUploadImage)
 
     }
 
@@ -66,29 +66,25 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
     }
 
     override fun getItemPosition(position: Int) {
-        val alert: AlertDialog.Builder = AlertDialog.Builder(this)
-            .setTitle("Choose")
-            .setMessage("Delete or Open Image?")
-            .setPositiveButton("Open", object : DialogInterface.OnClickListener {
-                override fun onClick(dialog: DialogInterface?, which: Int) {
-                    fragmentInstance(position)
-                }
+        fragmentInstance(position)
 
-            })
-            .setNegativeButton("Delete", object : DialogInterface.OnClickListener {
+    }
+
+    override fun deleteItem(position: Int) {
+        val alert: AlertDialog.Builder = AlertDialog.Builder(this)
+            .setMessage("Are you sure to delete image?")
+            .setPositiveButton("Yes", object : DialogInterface.OnClickListener {
                 override fun onClick(dialog: DialogInterface?, which: Int) {
                     deleteImage(position)
                     imageArray.clear()
                     adapter.notifyDataSetChanged()
                     displayImages(true)
-
                 }
-
             })
+            .setNegativeButton("No",null)
 
         val alertDialog: AlertDialog = alert.create()
         alertDialog.show()
-
     }
 
     private fun checkPermission(permission: String, code: Int, function: () -> Unit) {
@@ -216,7 +212,7 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
         dir.mkdirs()
         val img = File(dir, "${System.currentTimeMillis()}.jpg")
         val outputStream = FileOutputStream(img)
-        photoImage.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+        photoImage.compress(Bitmap.CompressFormat.JPEG, 50, outputStream)
         outputStream.flush()
         outputStream.close()
 
